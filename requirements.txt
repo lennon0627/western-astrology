@@ -1,0 +1,22 @@
+# 占星術計算コア
+pyswisseph
+geopy
+timezonefinder
+pytz
+numpy
+
+# FastAPI
+fastapi
+uvicorn[standard]
+pydantic
+
+# データ処理
+pandas
+
+# Jupyter（検証用）
+jupyterlab
+ipykernel
+
+# AI（任意）
+anthropic
+certifi
