@@ -107,12 +107,12 @@ export default function Home() {
 
       <Tabs defaultValue="natal" className="w-full max-w-5xl mx-auto">
         <TabsList className="flex flex-wrap h-auto gap-1 p-1 mb-6">
-          <TabsTrigger value="natal">ネイタル</TabsTrigger>
-          <TabsTrigger value="transit">トランジット</TabsTrigger>
-          <TabsTrigger value="progression">プログレッション</TabsTrigger>
-          <TabsTrigger value="solar-arc">ソーラーアーク</TabsTrigger>
-          <TabsTrigger value="solar-return">ソーラーリターン</TabsTrigger>
-          <TabsTrigger value="synastry">シナストリー</TabsTrigger>
+          <TabsTrigger value="natal">🪐 私の性格・素質</TabsTrigger>
+          <TabsTrigger value="transit">📅 今の運気</TabsTrigger>
+          <TabsTrigger value="progression">🌱 成長の流れ</TabsTrigger>
+          <TabsTrigger value="solar-arc">🔮 人生の転機</TabsTrigger>
+          <TabsTrigger value="solar-return">☀️ 今年の運勢</TabsTrigger>
+          <TabsTrigger value="synastry">💑 相性を見る</TabsTrigger>
         </TabsList>
 
         {/* ── ネイタル ─────────────────────────────────────────────────── */}
