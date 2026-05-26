@@ -70,7 +70,7 @@ export default function ChartWheel({ chart, size = 500 }: Props) {
       viewBox="0 0 500 500"
       width={size}
       height={size}
-      className="font-sans select-none"
+      className="font-sans select-none max-w-full h-auto"
     >
       {/* 背景 */}
       <circle cx={CX} cy={CY} r={R_OUTER} fill="#0f172a" />

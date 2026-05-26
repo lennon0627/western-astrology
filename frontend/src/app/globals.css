@@ -182,6 +182,42 @@
 .text-aspect-quincunx       { color: var(--aspect-quincunx); }
 .text-aspect-sesquiquadrate { color: var(--aspect-sesquiquadrate); }
 
+/* ── スクロールバー非表示（タブ横スクロール用） ─────────────────────────── */
+.overflow-x-auto::-webkit-scrollbar { display: none; }
+.overflow-x-auto { scrollbar-width: none; }
+
+/* ── 印刷スタイル ───────────────────────────────────────────────────────── */
+@media print {
+  /* ページ設定 */
+  @page { margin: 15mm; size: A4 portrait; }
+
+  /* アニメーション無効化（opacity:0 のまま印刷されるのを防ぐ） */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+  }
+
+  /* ダークテーマをライトに戻す（暗背景・白文字を印刷適切な色に） */
+  .dark {
+    --background:       oklch(1 0 0);
+    --foreground:       oklch(0.145 0 0);
+    --card:             oklch(1 0 0);
+    --card-foreground:  oklch(0.145 0 0);
+    --muted:            oklch(0.97 0 0);
+    --muted-foreground: oklch(0.5 0 0);
+    --border:           oklch(0.88 0 0);
+    --primary:          oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary:        oklch(0.95 0 0);
+    --accent:           oklch(0.95 0 0);
+    --input:            oklch(0.9 0 0);
+  }
+
+  /* SVG の天体色は維持（print-color-adjust は SVG fill に不要だが明示） */
+  svg { overflow: visible; }
+}
+
 /* ── Magic UI animations ────────────────────────────────────────────────── */
 @keyframes blur-fade-in {
   from { opacity: 0; filter: blur(8px); transform: translateY(6px); }

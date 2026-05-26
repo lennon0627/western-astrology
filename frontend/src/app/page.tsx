@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Copy, Check, Printer } from 'lucide-react'
 import BlurFade from '@/components/ui/blur-fade'
 import BirthForm from '@/components/BirthForm'
 import ChartWheel from '@/components/ChartWheel'
@@ -15,8 +17,19 @@ import SynastryView from '@/components/SynastryView'
 import ProgressionView from '@/components/ProgressionView'
 import SolarArcView from '@/components/SolarArcView'
 import SolarReturnView from '@/components/SolarReturnView'
+import DailyHoroscope from '@/components/DailyHoroscope'
+import AiReadingTab from '@/components/AiReadingTab'
+import ProfilePins from '@/components/ProfilePins'
 import { fetchReading, fetchSynastry } from '@/lib/api'
 import type { BirthRequest, ReadingResponse, SynastryResponse } from '@/lib/types'
+
+function EmptyHint() {
+  return (
+    <p className="text-center text-muted-foreground text-sm py-12">
+      先に生年月日を入力して計算してください
+    </p>
+  )
+}
 
 export default function Home() {
   // 全データ: 1回の fetchReading で取得
@@ -36,6 +49,33 @@ export default function Home() {
   const [synastry, setSynastry]   = useState<SynastryResponse | null>(null)
   const [synLoading, setSynLoading] = useState(false)
 
+  // URLコピー
+  const [copied, setCopied] = useState(false)
+
+  // BirthForm のリマウント用キー（ピン読み込み時に URL 経由で値を反映）
+  const [formKey, setFormKey] = useState(0)
+
+  // アクティブタブ（URL ?tab= と同期）
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === 'undefined') return 'natal'
+    return new URLSearchParams(window.location.search).get('tab') ?? 'natal'
+  })
+
+  // ── URL params 自動計算（マウント時1回のみ） ──────────────────────────
+  const autoRunDone = useRef(false)
+  useEffect(() => {
+    if (autoRunDone.current) return
+    autoRunDone.current = true
+    const p = new URLSearchParams(window.location.search)
+    const y = p.get('y'), m = p.get('m'), d = p.get('d')
+    if (!y || !m || !d) return
+    handleSubmit({
+      year: Number(y), month: Number(m), day: Number(d),
+      hour: Number(p.get('h') ?? '12'), minute: Number(p.get('min') ?? '0'),
+      city: p.get('city') || undefined,
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── ハンドラー ──────────────────────────────────────────────────────────
 
   async function handleSubmit(req: BirthRequest) {
@@ -45,11 +85,51 @@ export default function Home() {
       const data = await fetchReading(req, currentDt + ':00', srYear)
       setReading(data)
       setPersonReq(req)
+      // 計算後に URL を更新（共有・ブックマーク用）
+      const params = new URLSearchParams({
+        y: String(req.year), m: String(req.month), d: String(req.day),
+        h: String(req.hour), min: String(req.minute),
+      })
+      if (req.city) params.set('city', req.city)
+      if (activeTab !== 'natal') params.set('tab', activeTab)
+      window.history.replaceState(null, '', `?${params}`)
     } catch (e: any) {
       setError(e.message)
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleTabChange(tab: string) {
+    setActiveTab(tab)
+    const params = new URLSearchParams(window.location.search)
+    if (tab === 'natal') params.delete('tab')
+    else params.set('tab', tab)
+    window.history.replaceState(null, '', `?${params}`)
+  }
+
+  function handlePinLoad(req: BirthRequest) {
+    // URL を先に更新 → BirthForm がリマウント時に読み込む
+    const params = new URLSearchParams({
+      y: String(req.year), m: String(req.month), d: String(req.day),
+      h: String(req.hour), min: String(req.minute),
+    })
+    if (req.city) params.set('city', req.city)
+    if (activeTab !== 'natal') params.set('tab', activeTab)
+    window.history.replaceState(null, '', `?${params}`)
+    setFormKey(k => k + 1)
+    handleSubmit(req)
+  }
+
+  function handleCopyUrl() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  function handlePrint() {
+    window.print()
   }
 
   async function handleSynastryB(req: BirthRequest) {
@@ -71,12 +151,26 @@ export default function Home() {
       </BlurFade>
 
       {/* ── 入力フォーム（全タブ共通） ────────────────────────────────── */}
-      <Card className="w-full max-w-5xl mx-auto mb-6">
+      <Card className="w-full max-w-5xl mx-auto mb-6 print:hidden">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">生年月日・出生地を入力</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">生年月日・出生地を入力</CardTitle>
+            {personReq && (
+              <div className="flex items-center gap-1 print:hidden">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleCopyUrl}>
+                  {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+                  {copied ? 'コピーしました' : 'URLをコピー'}
+                </Button>
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handlePrint}>
+                  <Printer className="size-3" /> PDF
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <BirthForm onSubmit={handleSubmit} loading={loading} />
+          <BirthForm key={formKey} onSubmit={handleSubmit} loading={loading} />
+          <ProfilePins currentReq={personReq} onLoad={handlePinLoad} />
 
           {/* プログレッション・ソーラーアーク・ソーラーリターン用パラメータ */}
           <div className="flex flex-wrap gap-4 pt-2 border-t border-border">
@@ -105,19 +199,40 @@ export default function Home() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="natal" className="w-full max-w-5xl mx-auto">
-        <TabsList className="flex flex-wrap h-auto gap-1 p-1 mb-6">
-          <TabsTrigger value="natal">🪐 私の性格・素質</TabsTrigger>
-          <TabsTrigger value="transit">📅 今の運気</TabsTrigger>
-          <TabsTrigger value="progression">🌱 成長の流れ</TabsTrigger>
-          <TabsTrigger value="solar-arc">🔮 人生の転機</TabsTrigger>
-          <TabsTrigger value="solar-return">☀️ 今年の運勢</TabsTrigger>
-          <TabsTrigger value="synastry">💑 相性を見る</TabsTrigger>
+      {reading && (
+        <div className="print:hidden">
+          <DailyHoroscope events={reading.transit.events} />
+        </div>
+      )}
+
+      {/* 印刷専用ヘッダー（スクリーンでは非表示） */}
+      {personReq && reading && (
+        <div className="hidden print:block w-full max-w-5xl mx-auto mb-6 pb-4 border-b border-border">
+          <p className="font-semibold text-sm">
+            {personReq.year}年{personReq.month}月{personReq.day}日
+            &nbsp;{String(personReq.hour).padStart(2, '0')}:{String(personReq.minute).padStart(2, '0')}
+            {personReq.city && <span> · {personReq.city}</span>}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            総合スコア {reading.chart.total_score}/100 · {reading.chart.score_label}
+          </p>
+        </div>
+      )}
+
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full max-w-5xl mx-auto">
+        <TabsList className="flex overflow-x-auto h-auto gap-1 p-1 mb-6 w-full justify-start print:hidden">
+          <TabsTrigger value="natal"       className="shrink-0">🪐 私の性格・素質</TabsTrigger>
+          <TabsTrigger value="transit"     className="shrink-0">📅 今の運気</TabsTrigger>
+          <TabsTrigger value="progression" className="shrink-0">🌱 成長の流れ</TabsTrigger>
+          <TabsTrigger value="solar-arc"   className="shrink-0">🔮 人生の転機</TabsTrigger>
+          <TabsTrigger value="solar-return" className="shrink-0">☀️ 今年の運勢</TabsTrigger>
+          <TabsTrigger value="synastry"    className="shrink-0">💑 相性を見る</TabsTrigger>
+          <TabsTrigger value="ai"          className="shrink-0">✦ AI鑑定</TabsTrigger>
         </TabsList>
 
         {/* ── ネイタル ─────────────────────────────────────────────────── */}
         <TabsContent value="natal">
-          {reading && (
+          {reading ? (
             <BlurFade delay={100}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
@@ -137,25 +252,25 @@ export default function Home() {
                 </div>
               </div>
             </BlurFade>
-          )}
+          ) : <EmptyHint />}
         </TabsContent>
 
         {/* ── トランジット ──────────────────────────────────────────────── */}
         <TabsContent value="transit">
-          {reading && (
+          {reading ? (
             <BlurFade delay={100}>
               <Card>
                 <CardContent className="p-4">
-                  <TransitCalendar events={reading.transit.events} />
+                  <TransitCalendar events={reading.transit.events} natal={reading.chart} />
                 </CardContent>
               </Card>
             </BlurFade>
-          )}
+          ) : <EmptyHint />}
         </TabsContent>
 
         {/* ── プログレッション ──────────────────────────────────────────── */}
         <TabsContent value="progression">
-          {reading && (
+          {reading ? (
             <BlurFade delay={100}>
               <Card>
                 <CardContent className="p-4">
@@ -163,12 +278,12 @@ export default function Home() {
                 </CardContent>
               </Card>
             </BlurFade>
-          )}
+          ) : <EmptyHint />}
         </TabsContent>
 
         {/* ── ソーラーアーク ────────────────────────────────────────────── */}
         <TabsContent value="solar-arc">
-          {reading && (
+          {reading ? (
             <BlurFade delay={100}>
               <Card>
                 <CardContent className="p-4">
@@ -176,12 +291,12 @@ export default function Home() {
                 </CardContent>
               </Card>
             </BlurFade>
-          )}
+          ) : <EmptyHint />}
         </TabsContent>
 
         {/* ── ソーラーリターン ──────────────────────────────────────────── */}
         <TabsContent value="solar-return">
-          {reading && (
+          {reading ? (
             <BlurFade delay={100}>
               <Card>
                 <CardContent className="p-4">
@@ -189,7 +304,16 @@ export default function Home() {
                 </CardContent>
               </Card>
             </BlurFade>
-          )}
+          ) : <EmptyHint />}
+        </TabsContent>
+
+        {/* ── AI鑑定 ───────────────────────────────────────────────────── */}
+        <TabsContent value="ai">
+          {reading ? (
+            <BlurFade delay={100}>
+              <AiReadingTab chart={reading.chart} />
+            </BlurFade>
+          ) : <EmptyHint />}
         </TabsContent>
 
         {/* ── シナストリー ──────────────────────────────────────────────── */}

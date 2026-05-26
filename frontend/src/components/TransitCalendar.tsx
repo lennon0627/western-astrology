@@ -1,16 +1,87 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { planetClass, aspectClass, PLANET_SYMBOLS } from '@/lib/astro'
 import TransitChart from '@/components/TransitChart'
-import type { TransitEvent } from '@/lib/types'
+import type { ChartResponse, TransitEvent } from '@/lib/types'
 
 const FILTERS = ['全て', 'ハード', 'ソフト', '重要'] as const
 type Filter = typeof FILTERS[number]
 
-export default function TransitCalendar({ events }: { events: TransitEvent[] }) {
+function formatAlertDate(dt: string) {
+  const d = new Date(dt)
+  return `${d.getMonth() + 1}月${d.getDate()}日`
+}
+
+function AlertSection({ events }: { events: TransitEvent[] }) {
+  const alerts = useMemo(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    const limit = new Date(today); limit.setDate(today.getDate() + 30)
+    return events
+      .filter(e => {
+        const dt = new Date(e.exact_dt)
+        return dt >= today && dt <= limit && e.special !== ''
+      })
+      .sort((a, b) => new Date(a.exact_dt).getTime() - new Date(b.exact_dt).getTime())
+      .slice(0, 5)
+  }, [events])
+
+  if (alerts.length === 0) return null
+
+  return (
+    <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 space-y-2">
+      <p className="text-xs font-semibold text-yellow-600 dark:text-yellow-400 flex items-center gap-1">
+        ⚡ 今後30日以内の重要イベント
+      </p>
+      <div className="space-y-1.5">
+        {alerts.map((e, i) => (
+          <div
+            key={i}
+            className={`flex items-start gap-3 rounded-md px-3 py-2 text-sm border ${
+              e.type === 'ハード'
+                ? 'border-destructive/30 bg-destructive/5'
+                : 'border-blue-500/30 bg-blue-500/5'
+            }`}
+          >
+            {/* 日付 */}
+            <span className="text-xs font-mono text-muted-foreground shrink-0 w-16 pt-0.5">
+              {formatAlertDate(e.exact_dt)}
+            </span>
+
+            {/* 天体・アスペクト */}
+            <div className="flex items-center gap-1 shrink-0">
+              <span className={`font-bold text-base ${planetClass(e.transit_planet)}`}>
+                {PLANET_SYMBOLS[e.transit_planet] ?? e.transit_planet}
+              </span>
+              <span className={`text-xs ${aspectClass(e.aspect)}`}>{e.aspect_jp}</span>
+              <span className={`font-bold text-base ${planetClass(e.natal_planet)}`}>
+                {PLANET_SYMBOLS[e.natal_planet] ?? e.natal_planet}
+              </span>
+            </div>
+
+            {/* special 説明 */}
+            <span className="text-xs text-foreground flex-1 leading-snug">
+              ★ {e.special}
+            </span>
+
+            <Badge
+              variant="outline"
+              className={`text-[10px] px-1 shrink-0 ${
+                e.type === 'ハード' ? 'border-destructive/50 text-destructive' : 'border-blue-500/50 text-blue-500'
+              }`}
+            >
+              {e.type}
+            </Badge>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default function TransitCalendar({ events, natal }: { events: TransitEvent[]; natal: ChartResponse }) {
   const [filter, setFilter] = useState<Filter>('全て')
 
   const filtered = events.filter(e => {
@@ -22,7 +93,9 @@ export default function TransitCalendar({ events }: { events: TransitEvent[] }) 
 
   return (
     <div className="space-y-3">
-      <TransitChart events={events} />
+      <AlertSection events={events} />
+
+      <TransitChart events={events} natal={natal} />
 
       <div className="flex gap-2 flex-wrap">
         {FILTERS.map(f => (
