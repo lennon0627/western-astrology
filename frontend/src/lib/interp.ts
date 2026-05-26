@@ -172,6 +172,17 @@ export const SIGN_THEME: Record<string, string> = {
   Pisces:      '柔らかく夢見がちな神秘的な印象',
 }
 
+// アスペクト解説
+export const ASPECT_INTERP: Record<string, { jp: string; symbol: string; desc: string }> = {
+  Conjunction:    { jp: 'コンジャンクション', symbol: '☌', desc: '2天体が融合・強化。エネルギーが一点に集中し、その天体の特質が極端に強まる。吉凶は関係する天体の性質による。' },
+  Sextile:        { jp: 'セクスタイル',       symbol: '⚹', desc: '才能や機会がスムーズに流れる調和の角度。努力を後押しするやわらかいサポート。' },
+  Square:         { jp: 'スクエア',           symbol: '□', desc: '緊張と摩擦を生む挑戦的な角度。困難を乗り越えることで大きな成長を促す原動力になる。' },
+  Trine:          { jp: 'トライン',           symbol: '△', desc: '最も恵まれた調和の角度。才能が自然に発揮され、関係する分野で物事がスムーズに進む。' },
+  Opposition:     { jp: 'オポジション',       symbol: '☍', desc: '対立と統合のダイナミクス。外部との衝突や他者との関わりを通じてバランスを学ぶ。' },
+  Quincunx:       { jp: 'クインカンクス',     symbol: '⚻', desc: '調整が必要な微妙な不一致。継続的な修正と適応を求められるが、独特の創造性も生まれる。' },
+  Sesquiquadrate: { jp: 'セスキコードレイト', symbol: '∠', desc: 'スクエアより微細な摩擦。内的なフラストレーションや焦りを示し、見直しを促す角度。' },
+}
+
 export function getPlanetSignInterp(planetName: string, sign: string): string | null {
   const interp = PLANET_SIGN_INTERP[planetName]?.[sign]
   if (interp) return interp
