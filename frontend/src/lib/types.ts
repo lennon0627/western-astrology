@@ -241,11 +241,17 @@ export interface SolarReturnData {
   sr_aspects_to_natal: SRNatalAspect[]
 }
 
+export interface RetroPeriod {
+  planet: string
+  start:  string   // ISO datetime
+  end:    string   // ISO datetime
+}
+
 // ── Reading（全データ統合レスポンス）────────────────────────────────────────
 
 export interface ReadingResponse {
   chart:        ChartResponse
-  transit:      { events: TransitEvent[]; current_planets: Record<string, number> }
+  transit:      { events: TransitEvent[]; current_planets: Record<string, number>; retro_periods: RetroPeriod[] }
   progression:  ProgressionResult
   solar_arc:    SAResult
   solar_return: SolarReturnData

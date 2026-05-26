@@ -126,6 +126,68 @@ def calc_current_transit_positions(
     }
 
 
+def calc_retrograde_periods(
+    engine: WesternAstrologyEngine,
+    start_dt: datetime,
+    days: int = 365,
+) -> List[Dict]:
+    """
+    start_dt から days 日間の各惑星の逆行期間を返す。
+    Sun/Moon は逆行しないため除外。
+    """
+    RETRO_PLANETS = {
+        "Mercury": (swe.MERCURY, 1.0),
+        "Venus":   (swe.VENUS,   1.0),
+        "Mars":    (swe.MARS,    2.0),
+        "Jupiter": (swe.JUPITER, 3.0),
+        "Saturn":  (swe.SATURN,  3.0),
+        "Uranus":  (swe.URANUS,  7.0),
+        "Neptune": (swe.NEPTUNE, 7.0),
+        "Pluto":   (swe.PLUTO,   7.0),
+    }
+
+    try:
+        start_jd = engine.local_dt_to_jd(start_dt, "UTC")
+    except Exception:
+        start_jd = engine.local_dt_to_jd(start_dt.replace(tzinfo=None), "UTC")
+    end_jd = start_jd + days
+
+    results: List[Dict] = []
+
+    for name, (planet_id, step) in RETRO_PLANETS.items():
+        jd_arr = np.arange(start_jd, end_jd + step, step)
+
+        speeds = []
+        for jd in jd_arr:
+            try:
+                res, _ = swe.calc_ut(float(jd), planet_id, swe.FLG_MOSEPH)
+                speeds.append(res[3])
+            except Exception:
+                speeds.append(0.0)
+
+        is_retro = np.array(speeds) < 0
+
+        # 逆行区間をグループとして抽出
+        i = 0
+        while i < len(is_retro):
+            if is_retro[i]:
+                retro_start = float(jd_arr[i])
+                j = i + 1
+                while j < len(is_retro) and is_retro[j]:
+                    j += 1
+                retro_end = float(jd_arr[j]) if j < len(jd_arr) else end_jd
+                results.append({
+                    "planet": name,
+                    "start":  engine.jd_to_dt(retro_start).isoformat(),
+                    "end":    engine.jd_to_dt(retro_end).isoformat(),
+                })
+                i = j
+            else:
+                i += 1
+
+    return sorted(results, key=lambda x: x["start"])
+
+
 def calc_transit_calendar(
     engine: WesternAstrologyEngine,
     natal: Dict,

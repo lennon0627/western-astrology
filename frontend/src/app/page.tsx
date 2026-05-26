@@ -264,6 +264,7 @@ export default function Home() {
                     events={reading.transit.events}
                     natal={reading.chart}
                     currentPlanets={reading.transit.current_planets}
+                    retroPeriods={reading.transit.retro_periods}
                   />
                 </CardContent>
               </Card>

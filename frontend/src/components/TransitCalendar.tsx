@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { planetClass, aspectClass, PLANET_SYMBOLS } from '@/lib/astro'
 import TransitChart from '@/components/TransitChart'
-import type { ChartResponse, TransitEvent } from '@/lib/types'
+import RetrogradePeriods from '@/components/RetrogradePeriods'
+import type { ChartResponse, TransitEvent, RetroPeriod } from '@/lib/types'
 
 const FILTERS = ['全て', 'ハード', 'ソフト', '重要'] as const
 type Filter = typeof FILTERS[number]
@@ -82,11 +83,12 @@ function AlertSection({ events }: { events: TransitEvent[] }) {
 }
 
 export default function TransitCalendar({
-  events, natal, currentPlanets,
+  events, natal, currentPlanets, retroPeriods,
 }: {
   events: TransitEvent[]
   natal: ChartResponse
   currentPlanets?: Record<string, number>
+  retroPeriods?: RetroPeriod[]
 }) {
   const [filter, setFilter] = useState<Filter>('全て')
 
@@ -102,6 +104,10 @@ export default function TransitCalendar({
       <AlertSection events={events} />
 
       <TransitChart events={events} natal={natal} currentPlanets={currentPlanets} />
+
+      {retroPeriods && retroPeriods.length > 0 && (
+        <RetrogradePeriods periods={retroPeriods} />
+      )}
 
       <div className="flex gap-2 flex-wrap">
         {FILTERS.map(f => (

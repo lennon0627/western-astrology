@@ -15,7 +15,7 @@ from engine.calculator import WesternAstrologyEngine
 from engine.dignity import calc_all_dignities, calc_ruler_analysis
 from engine.scoring import calc_natal_score
 from engine.synastry import calc_synastry
-from engine.transits import calc_transit_calendar, calc_current_transit_positions
+from engine.transits import calc_transit_calendar, calc_current_transit_positions, calc_retrograde_periods
 from engine.progressions import calc_secondary_progression
 from engine.solar_arc import calc_solar_arc
 from engine.solar_return import calc_solar_return, calc_sr_aspects_to_natal
@@ -151,6 +151,7 @@ def post_reading(req: ReadingRequest):
     chart  = _build_chart_response(natal, birth_dt, lat, lon)
     events = calc_transit_calendar(_engine, natal, now, days=req.transit_days)
     current_planets = calc_current_transit_positions(_engine, now)
+    retro_periods = calc_retrograde_periods(_engine, now, days=req.transit_days)
     prog   = calc_secondary_progression(_engine, natal, birth_dt, current_dt, lat, lon, tz)
     sa     = calc_solar_arc(_engine, natal, birth_dt, current_dt)
 
@@ -162,7 +163,7 @@ def post_reading(req: ReadingRequest):
 
     return {
         "chart":      chart,
-        "transit":    {"events": events, "current_planets": current_planets},
+        "transit":    {"events": events, "current_planets": current_planets, "retro_periods": retro_periods},
         "progression": prog,
         "solar_arc":   sa,
         "solar_return": {
