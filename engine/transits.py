@@ -103,6 +103,29 @@ def _find_exact_transit(
     return (jd_lo + jd_hi) / 2.0
 
 
+def calc_current_transit_positions(
+    engine: WesternAstrologyEngine,
+    current_dt: datetime,
+) -> Dict[str, float]:
+    """
+    current_dt 時点の各トランジット天体の黄経（度数）を返す。
+    フロントエンドのビホイール外リング表示用。
+
+    Returns
+    -------
+    {"Sun": 123.45, "Moon": 234.56, ...}  ← 0〜360 の黄経
+    """
+    try:
+        jd = engine.local_dt_to_jd(current_dt, "UTC")
+    except Exception:
+        jd = engine.local_dt_to_jd(current_dt.replace(tzinfo=None), "UTC")
+
+    return {
+        name: round(engine.get_longitude(jd, planet_id), 4)
+        for name, (planet_id, _) in TRANSIT_PLANETS.items()
+    }
+
+
 def calc_transit_calendar(
     engine: WesternAstrologyEngine,
     natal: Dict,

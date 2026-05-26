@@ -261,7 +261,11 @@ export default function Home() {
             <BlurFade delay={100}>
               <Card>
                 <CardContent className="p-4">
-                  <TransitCalendar events={reading.transit.events} natal={reading.chart} />
+                  <TransitCalendar
+                    events={reading.transit.events}
+                    natal={reading.chart}
+                    currentPlanets={reading.transit.current_planets}
+                  />
                 </CardContent>
               </Card>
             </BlurFade>

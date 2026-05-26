@@ -245,7 +245,7 @@ export interface SolarReturnData {
 
 export interface ReadingResponse {
   chart:        ChartResponse
-  transit:      { events: TransitEvent[] }
+  transit:      { events: TransitEvent[]; current_planets: Record<string, number> }
   progression:  ProgressionResult
   solar_arc:    SAResult
   solar_return: SolarReturnData

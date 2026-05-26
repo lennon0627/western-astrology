@@ -70,24 +70,31 @@ function estimateTransitLon(
 interface Props {
   natal: ChartResponse
   events: TransitEvent[]
+  currentPlanets?: Record<string, number>  // API から渡される実位置（0〜360°）
 }
 
-export default function TransitChart({ natal, events }: Props) {
+export default function TransitChart({ natal, events, currentPlanets }: Props) {
   const asc = natal.houses.asc
 
   function pos(lon: number, r: number) {
     return lonToXY(lon, asc, r, CX, CY)
   }
 
-  // トランジット天体位置推定
+  // トランジット天体位置: API 実位置 → 推定フォールバック
   const transitPositions = useMemo(() => {
+    if (currentPlanets && Object.keys(currentPlanets).length > 0) {
+      return TRANSIT_PLANETS
+        .filter(name => name in currentPlanets)
+        .map(name => ({ name, lon: currentPlanets[name] }))
+    }
+    // フォールバック: upcoming events から逆算推定
     const result: { name: string; lon: number }[] = []
     for (const planet of TRANSIT_PLANETS) {
       const lon = estimateTransitLon(planet, events, natal.planets)
       if (lon !== null) result.push({ name: planet, lon })
     }
     return result
-  }, [events, natal.planets])
+  }, [currentPlanets, events, natal.planets])
 
   // 衝突回避（5°以内を5°ずらす）
   const transitDraw = useMemo(() => {
@@ -117,6 +124,7 @@ export default function TransitChart({ natal, events }: Props) {
     <div className="space-y-1 mb-4">
       <p className="text-xs text-muted-foreground text-center">
         トランジット2層ホイール（外: T · 内: N · 中心線: 直近21日のアスペクト）
+        {!currentPlanets && <span className="text-yellow-600/70"> ※推定位置</span>}
       </p>
       <div className="flex justify-center">
         <svg viewBox="0 0 400 400" className="max-w-sm w-full h-auto">

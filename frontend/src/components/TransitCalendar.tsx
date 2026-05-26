@@ -81,7 +81,13 @@ function AlertSection({ events }: { events: TransitEvent[] }) {
   )
 }
 
-export default function TransitCalendar({ events, natal }: { events: TransitEvent[]; natal: ChartResponse }) {
+export default function TransitCalendar({
+  events, natal, currentPlanets,
+}: {
+  events: TransitEvent[]
+  natal: ChartResponse
+  currentPlanets?: Record<string, number>
+}) {
   const [filter, setFilter] = useState<Filter>('全て')
 
   const filtered = events.filter(e => {
@@ -95,7 +101,7 @@ export default function TransitCalendar({ events, natal }: { events: TransitEven
     <div className="space-y-3">
       <AlertSection events={events} />
 
-      <TransitChart events={events} natal={natal} />
+      <TransitChart events={events} natal={natal} currentPlanets={currentPlanets} />
 
       <div className="flex gap-2 flex-wrap">
         {FILTERS.map(f => (
