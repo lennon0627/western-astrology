@@ -1,4 +1,5 @@
 import { planetClass, PLANET_SYMBOLS } from '@/lib/astro'
+import { getPlanetSignInterp } from '@/lib/interp'
 import type { ChartResponse } from '@/lib/types'
 
 const ORDER = [
@@ -45,6 +46,11 @@ export default function PlanetTable({ chart }: { chart: ChartResponse }) {
                   <span className={`mr-1 ${planetClass(name)}`}>{sym}</span>
                   {name}
                   {p.retrograde && <span className="ml-1 text-xs text-muted-foreground">ℛ</span>}
+                  {getPlanetSignInterp(name, p.sign) && (
+                    <p className="text-[10px] text-muted-foreground font-normal leading-tight mt-0.5">
+                      {getPlanetSignInterp(name, p.sign)}
+                    </p>
+                  )}
                 </td>
                 <td className="py-1.5 pr-3 text-muted-foreground font-mono text-xs">
                   {p.degree_str}
