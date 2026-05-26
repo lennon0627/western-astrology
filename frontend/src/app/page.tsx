@@ -56,10 +56,7 @@ export default function Home() {
   const [formKey, setFormKey] = useState(0)
 
   // アクティブタブ（URL ?tab= と同期）
-  const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window === 'undefined') return 'natal'
-    return new URLSearchParams(window.location.search).get('tab') ?? 'natal'
-  })
+  const [activeTab, setActiveTab] = useState('natal')
 
   // ── URL params 自動計算（マウント時1回のみ） ──────────────────────────
   const autoRunDone = useRef(false)
@@ -67,6 +64,8 @@ export default function Home() {
     if (autoRunDone.current) return
     autoRunDone.current = true
     const p = new URLSearchParams(window.location.search)
+    const tab = p.get('tab')
+    if (tab) setActiveTab(tab)
     const y = p.get('y'), m = p.get('m'), d = p.get('d')
     if (!y || !m || !d) return
     handleSubmit({
