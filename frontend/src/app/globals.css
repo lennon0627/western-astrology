@@ -147,13 +147,13 @@
   --planet-asc:     #e2e8f0;
   --planet-mc:      #e2e8f0;
 
-  --aspect-conjunction:    #FFD700;
-  --aspect-sextile:        #4ade80;
-  --aspect-square:         #f87171;
-  --aspect-trine:          #60a5fa;
-  --aspect-opposition:     #fb923c;
-  --aspect-quincunx:       #c084fc;
-  --aspect-sesquiquadrate: #f97316;
+  --aspect-conjunction:    #c8a520;
+  --aspect-sextile:        #3a9060;
+  --aspect-square:         #b84848;
+  --aspect-trine:          #4878b0;
+  --aspect-opposition:     #b86828;
+  --aspect-quincunx:       #8858b8;
+  --aspect-sesquiquadrate: #a05820;
 }
 
 /* Planet color utilities */
