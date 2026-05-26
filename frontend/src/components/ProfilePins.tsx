@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Pin, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,9 +37,13 @@ interface Props {
 }
 
 export default function ProfilePins({ currentReq, onLoad }: Props) {
-  const [profiles, setProfiles] = useState<SavedProfile[]>(loadProfiles)
+  const [profiles, setProfiles] = useState<SavedProfile[]>([])
   const [saving, setSaving] = useState(false)
   const [nameInput, setNameInput] = useState('')
+
+  useEffect(() => {
+    setProfiles(loadProfiles())
+  }, [])
 
   function handleSave() {
     if (!currentReq || !nameInput.trim()) return
