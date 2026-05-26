@@ -172,6 +172,22 @@ export const SIGN_THEME: Record<string, string> = {
   Pisces:      '柔らかく夢見がちな神秘的な印象',
 }
 
+// ハウステーマ
+export const HOUSE_THEMES: Record<number, string> = {
+  1:  '自己・外見',
+  2:  '財産・価値観',
+  3:  '知性・兄弟',
+  4:  '家庭・ルーツ',
+  5:  '創造・恋愛',
+  6:  '仕事・健康',
+  7:  '対人・結婚',
+  8:  '変容・遺産',
+  9:  '哲学・海外',
+  10: '地位・仕事',
+  11: '友人・理想',
+  12: '無意識・霊性',
+}
+
 // アスペクト解説
 export const ASPECT_INTERP: Record<string, { jp: string; symbol: string; desc: string }> = {
   Conjunction:    { jp: 'コンジャンクション', symbol: '☌', desc: '2天体が融合・強化。エネルギーが一点に集中し、その天体の特質が極端に強まる。吉凶は関係する天体の性質による。' },

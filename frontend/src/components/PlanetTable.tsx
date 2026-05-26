@@ -1,5 +1,5 @@
 import { planetClass, PLANET_SYMBOLS } from '@/lib/astro'
-import { getPlanetSignInterp } from '@/lib/interp'
+import { getPlanetSignInterp, HOUSE_THEMES } from '@/lib/interp'
 import type { ChartResponse } from '@/lib/types'
 
 const ORDER = [
@@ -55,8 +55,15 @@ export default function PlanetTable({ chart }: { chart: ChartResponse }) {
                 <td className="py-1.5 pr-3 text-muted-foreground font-mono text-xs">
                   {p.degree_str}
                 </td>
-                <td className="py-1.5 pr-3 text-center text-muted-foreground">
-                  {p.house > 0 ? p.house : '—'}
+                <td className="py-1.5 pr-3 text-center">
+                  {p.house > 0 ? (
+                    <>
+                      <div className="text-muted-foreground">{p.house}</div>
+                      <div className="text-[9px] text-muted-foreground/60 leading-tight whitespace-nowrap">
+                        {HOUSE_THEMES[p.house]}
+                      </div>
+                    </>
+                  ) : '—'}
                 </td>
                 <td className="py-1.5">
                   {dig && DIGNITY_JP[dig] ? (
