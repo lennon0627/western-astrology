@@ -53,13 +53,13 @@ export const PLANET_COLORS: Record<string, string> = {
 }
 
 export const ASPECT_COLORS: Record<string, string> = {
-  Conjunction: '#c8a520',
-  Sextile: '#3a9060',
-  Square: '#b84848',
-  Trine: '#4878b0',
-  Opposition: '#b86828',
-  Quincunx: '#8858b8',
-  Sesquiquadrate: '#a05820',
+  Conjunction: '#FFD700',
+  Sextile: '#4ade80',
+  Square: '#f87171',
+  Trine: '#60a5fa',
+  Opposition: '#fb923c',
+  Quincunx: '#c084fc',
+  Sesquiquadrate: '#f97316',
 }
 
 // ── 黄道帯定数 ───────────────────────────────────────────────────────────────
@@ -88,17 +88,17 @@ export const SIGN_ELEMENTS: Record<string, Element> = {
 }
 
 export const ELEMENT_COLORS: Record<Element, string> = {
-  fire:  '#3d1515',   // deep crimson
-  earth: '#2e2010',   // dark sienna
-  air:   '#111e35',   // deep navy
-  water: '#0c2620',   // deep teal
+  fire:  '#fca5a5',   // red-300
+  earth: '#d4b483',   // tan
+  air:   '#93c5fd',   // blue-300
+  water: '#6ee7b7',   // emerald-300
 }
 
 export const ELEMENT_TEXT: Record<Element, string> = {
-  fire:  '#c08080',
-  earth: '#a08858',
-  air:   '#5888b8',
-  water: '#489888',
+  fire:  '#991b1b',
+  earth: '#78350f',
+  air:   '#1e3a8a',
+  water: '#065f46',
 }
 
 // ── CSS クラスヘルパー（インラインスタイル不要）────────────────────────────
