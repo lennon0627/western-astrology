@@ -18,7 +18,7 @@ sleep 1
 
 # FastAPI (port 8001)
 echo "[API] 起動中... http://localhost:8001"
-"$ROOT/.venv/bin/uvicorn" api:app --port 8001 --reload &
+cd "$ROOT" && "$ROOT/.venv/bin/uvicorn" api:app --port 8001 --reload &
 API_PID=$!
 
 # Next.js (port 3000)
